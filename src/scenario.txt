@@ -30,3 +30,30 @@ requirements:
 
 minus
 1. modifier startBid() change to >=
+
+################################
+bidWithBalance()
+requirements:
+1. Auction must available first
+2. bidder has lose first, and then take the bid will save in balance
+   , bidder back again to bid with balance which saving in smart contract
+
+# Success
+1. Lose from first bid, then back again bid using balance.
+# Fail
+1. Auction not available
+2. owner bidding
+3. scheduling not started
+4. scheduling finished
+5. bid lower
+
+minus
+
+################################
+withdraw()
+requirements:
+1. user must have enough balance
+# Success
+1. enough balance
+2. full balance
+# error

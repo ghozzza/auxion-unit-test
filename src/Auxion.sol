@@ -71,7 +71,7 @@ contract Auxion {
     }
     modifier bidLower(uint256 _id, uint256 _amount) {
         require(
-            msg.value + _amount > listAuctions[_id].startBid,
+            msg.value + _amount > listAuctions[_id].highestBid,
             "There is already a higher or equal bid."
         );
         _;
@@ -86,7 +86,7 @@ contract Auxion {
     }
     modifier startBidding(uint256 _id, uint256 _amount) {
         require(
-            msg.value + _amount > listAuctions[_id].startBid,
+            msg.value + _amount >= listAuctions[_id].startBid,
             "Bid at least higher than start bid"
         );
         _;
@@ -185,7 +185,6 @@ contract Auxion {
             balances[listAuctions[_id].highestBidder] += listAuctions[_id]
                 .highestBid;
         }
-
         listAuctions[_id].highestBidder = msg.sender;
         listAuctions[_id].highestBid = msg.value + _amount;
         emit highestBidIncreased(_id, msg.sender, msg.value + _amount);
