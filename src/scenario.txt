@@ -1,0 +1,32 @@
+openAuction()
+# Success
+1. success accessing the function
+
+# Fail
+1. User input endDate earlier than startDate
+2. User got penalty
+
+minus
+1. openAuction() needs emit event
+2. give feedback on require()
+################################
+bid()
+requirements:
+1. Auction must available first
+
+# Success
+1. first bid Auction available, not auction owner, time schedule has started and not ended, match bid, fit with startBid
+2. second bid Auction available, not auction owner, time schedule has started and not ended, match bid, fit with startBid
+# Fail
+1. Auction not available
+2. owner bidding
+3. scheduling not started
+4. scheduling finished
+5. bid lower
+6. gap Bid not reached
+7. startBidding under value
+8. user got penalty
+
+
+minus
+1. modifier startBid() change to >=
