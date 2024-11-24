@@ -25,10 +25,12 @@ contract AuxionTest is Test {
         vm.prank(owner);
         auxion = new Auxion();
     }
+
     function helper_GivePenalties(address _user) public {
         vm.prank(owner);
         auxion.ownerGivePenalty(_user);
     }
+
     function helper_OpenAuction() public {
         auxion.openAuction(
             "Mutant Apes",
@@ -40,6 +42,7 @@ contract AuxionTest is Test {
             block.timestamp + 259200
         );
     }
+
     function helper_WithdrawBalance() public {
         vm.prank(user1);
         helper_OpenAuction();
@@ -54,6 +57,7 @@ contract AuxionTest is Test {
         vm.prank(user3);
         auxion.bid{value: bidAmount * 2}(1);
     }
+
     function helper_EndAuction(address _user1, address _user2) public {
         vm.warp(block.timestamp + 1);
         vm.deal(_user1, bidAmount);
@@ -72,8 +76,9 @@ contract AuxionTest is Test {
         vm.prank(_user1);
         auxion.bidWithBalance{value: (tempBidAmount)}(1, 0.5 ether);
     }
+
     function helper_Approval(address _user) public {
-        (, , , , , , , , , , , uint256 endDate) = auxion.listAuctions(1);
+        (,,,,,,,,,,, uint256 endDate) = auxion.listAuctions(1);
         vm.warp(endDate + 1);
         vm.prank(_user);
         auxion.endAuction(1);
@@ -125,19 +130,16 @@ contract AuxionOpenAuctionTest is AuxionTest {
     function test_RevertWhenEndDateMoreStartDate_OpenAuction() public {
         vm.prank(user1);
 
-        /**** */
+        /**
+         *
+         */
         //Soon give theFeedback
         vm.expectRevert();
-        /**** */
-
+        /**
+         *
+         */
         auxion.openAuction(
-            "Mutant Apes",
-            "https://...",
-            "Photos",
-            100000000000000,
-            100000000000000,
-            block.timestamp,
-            block.timestamp
+            "Mutant Apes", "https://...", "Photos", 100000000000000, 100000000000000, block.timestamp, block.timestamp
         );
     }
 
@@ -156,6 +158,7 @@ contract AuxionOpenAuctionTest is AuxionTest {
         );
     }
 }
+
 contract AuxionBidTest is AuxionTest {
     function test_1Bid() public {
         vm.prank(user1);
@@ -166,8 +169,7 @@ contract AuxionBidTest is AuxionTest {
         vm.prank(user2);
         auxion.bid{value: bidAmount}(1);
 
-        (, , , , , address highestBidder, uint256 highestBid, , , , , ) = auxion
-            .listAuctions(1);
+        (,,,,, address highestBidder, uint256 highestBid,,,,,) = auxion.listAuctions(1);
 
         assertEq(user2, highestBidder);
         assertEq(bidAmount, highestBid);
@@ -189,8 +191,7 @@ contract AuxionBidTest is AuxionTest {
         emit highestBidIncreased(1, user3, bidAmount * 2);
         auxion.bid{value: bidAmount * 2}(1);
 
-        (, , , , , address highestBidder, uint256 highestBid, , , , , ) = auxion
-            .listAuctions(1);
+        (,,,,, address highestBidder, uint256 highestBid,,,,,) = auxion.listAuctions(1);
 
         assertEq(user3, highestBidder);
         assertEq(bidAmount * 2, highestBid);
@@ -260,7 +261,8 @@ contract AuxionBidTest is AuxionTest {
         vm.warp(block.timestamp + 1);
         vm.deal(user2, 10);
         vm.prank(user2);
-        vm.expectRevert("You should bid at least have gap ..."); ///
+        vm.expectRevert("You should bid at least have gap ...");
+        ///
         auxion.bid{value: 10}(1);
     }
 
@@ -279,6 +281,7 @@ contract AuxionBidTest is AuxionTest {
         vm.expectRevert("There is already a higher or equal bid.");
         auxion.bid{value: bidAmount - 1}(1);
     }
+
     function test_RevertWhenUserGotPenalty_Bid() public {
         vm.prank(user1);
         helper_OpenAuction();
@@ -292,6 +295,7 @@ contract AuxionBidTest is AuxionTest {
         auxion.bid{value: bidAmount}(1);
     }
 }
+
 contract AuxionBidWithBalanceTest is AuxionTest {
     function test_BidWithBalance() public {
         vm.prank(user1);
@@ -317,6 +321,7 @@ contract AuxionBidWithBalanceTest is AuxionTest {
     }
     // 1000000000000000000
     // 250000000000000000
+
     function test_RevertWhenInsufficientBalance_BidWithBalance() public {
         vm.prank(user1);
         helper_OpenAuction();
@@ -337,6 +342,7 @@ contract AuxionBidWithBalanceTest is AuxionTest {
         vm.expectRevert("Insufficient Balance");
         auxion.bidWithBalance{value: (bidAmount * 2)}(1, bidAmount * 2);
     }
+
     function test_RevertWhenAuctionNotAvailable_BidWithBalance() public {
         vm.warp(block.timestamp + 1);
         vm.deal(user2, bidAmount);
@@ -344,6 +350,7 @@ contract AuxionBidWithBalanceTest is AuxionTest {
         vm.expectRevert("Auction not available");
         auxion.bidWithBalance{value: bidAmount}(1, bidAmount);
     }
+
     function test_RevertWhenAuctionOwnerBid_BidWithBalance() public {
         vm.prank(user1);
         helper_OpenAuction();
@@ -354,6 +361,7 @@ contract AuxionBidWithBalanceTest is AuxionTest {
         vm.expectRevert("You can't bid your auction");
         auxion.bidWithBalance{value: bidAmount}(1, bidAmount);
     }
+
     function test_RevertWhenAuctionNotStarted_BidWithBalance() public {
         vm.prank(user1);
         helper_OpenAuction();
@@ -364,6 +372,7 @@ contract AuxionBidWithBalanceTest is AuxionTest {
         vm.expectRevert("Auction not started");
         auxion.bidWithBalance{value: bidAmount}(1, bidAmount);
     }
+
     function test_RevertWhenAuctionFinished_BidWithBalance() public {
         vm.prank(user1);
         helper_OpenAuction();
@@ -374,6 +383,7 @@ contract AuxionBidWithBalanceTest is AuxionTest {
         vm.expectRevert("Auction has already ended.");
         auxion.bidWithBalance{value: bidAmount}(1, bidAmount);
     }
+
     function test_RevertWhenAuctionBidNotMatch_BidWithBalance() public {
         vm.prank(user1);
         helper_OpenAuction();
@@ -389,6 +399,7 @@ contract AuxionBidWithBalanceTest is AuxionTest {
         vm.expectRevert("You should bid at least have gap ...");
         auxion.bidWithBalance{value: bidAmount + 1}(1, 0);
     }
+
     function test_RevertWhenAuctionBidLowerFromStart_BidWithBalance() public {
         vm.prank(user1);
         helper_OpenAuction();
@@ -396,9 +407,11 @@ contract AuxionBidWithBalanceTest is AuxionTest {
         vm.warp(block.timestamp + 1);
         vm.deal(user2, 10);
         vm.prank(user2);
-        vm.expectRevert("You should bid at least have gap ..."); ///
+        vm.expectRevert("You should bid at least have gap ...");
+        ///
         auxion.bidWithBalance{value: 10}(1, 0);
     }
+
     function test_RevertWhenAuctionBidUnderBidBefore_BidWithBalance() public {
         vm.prank(user1);
         helper_OpenAuction();
@@ -414,6 +427,7 @@ contract AuxionBidWithBalanceTest is AuxionTest {
         vm.expectRevert("There is already a higher or equal bid.");
         auxion.bidWithBalance{value: bidAmount - 1}(1, 0);
     }
+
     function test_RevertWhenUserGotPenalty_BidWithBalance() public {
         vm.prank(user1);
         helper_OpenAuction();
@@ -427,6 +441,7 @@ contract AuxionBidWithBalanceTest is AuxionTest {
         auxion.bidWithBalance{value: bidAmount}(1, 0);
     }
 }
+
 contract AuxionWithdrawTest is AuxionTest {
     function test_Withdraw() public {
         helper_WithdrawBalance();
@@ -436,6 +451,7 @@ contract AuxionWithdrawTest is AuxionTest {
         assertEq(user2.balance, withdrawAmount);
         assertEq(auxion.balances(user2), bidAmount - withdrawAmount);
     }
+
     function test_fullBalance_Withdraw() public {
         helper_WithdrawBalance();
         uint256 withdrawAmount = bidAmount;
@@ -455,6 +471,7 @@ contract AuxionWithdrawTest is AuxionTest {
 
         assertEq(auxion.balances(user2), bidAmount);
     }
+
     function test_RevertWhenZeroAmount_Withdraw() public {
         helper_WithdrawBalance();
         uint256 withdrawAmount = 0;
@@ -464,6 +481,7 @@ contract AuxionWithdrawTest is AuxionTest {
         assertEq(user2.balance, withdrawAmount);
         assertEq(auxion.balances(user2), bidAmount - withdrawAmount);
     }
+
     function test_RevertWhenUserGotPenalty_Withdraw() public {
         uint256 withdrawAmount = 100;
         helper_GivePenalties(user2);
@@ -472,13 +490,13 @@ contract AuxionWithdrawTest is AuxionTest {
         auxion.withdraw(withdrawAmount);
     }
 }
+
 contract AuxionEndAuctionTest is AuxionTest {
     function test_BuyerEndAuction() public {
         vm.prank(user1);
         helper_OpenAuction();
         helper_EndAuction(user2, user3);
-        (, , , , , , uint256 highestBid, , , , , uint256 endDate) = auxion
-            .listAuctions(1);
+        (,,,,,, uint256 highestBid,,,,, uint256 endDate) = auxion.listAuctions(1);
         vm.warp(endDate + 1);
         // Buyer
         vm.prank(user2);
@@ -506,12 +524,12 @@ contract AuxionEndAuctionTest is AuxionTest {
         assertEq(pendingShip, 0);
         assertEq(approvalCreated, block.timestamp);
     }
+
     function test_SellerEndAuction() public {
         vm.prank(user1);
         helper_OpenAuction();
         helper_EndAuction(user2, user3);
-        (, , , , , , uint256 highestBid, , , , , uint256 endDate) = auxion
-            .listAuctions(1);
+        (,,,,,, uint256 highestBid,,,,, uint256 endDate) = auxion.listAuctions(1);
         vm.warp(endDate + 1);
 
         // Seller
@@ -540,23 +558,24 @@ contract AuxionEndAuctionTest is AuxionTest {
         assertEq(pendingShip, 0);
         assertEq(approvalCreated, block.timestamp);
     }
+
     function test_RevertWhenAuctionNotAvailable_EndAuction() public {
         vm.prank(user1);
         vm.expectRevert("Auction not available");
         auxion.endAuction(1);
     }
+
     function test_RevertWhenSomeoneEndAuction_EndAuction() public {
         vm.prank(user1);
         helper_OpenAuction();
         helper_EndAuction(user2, user3);
-        (, , , , , , , , , , , uint256 endDate) = auxion.listAuctions(1);
+        (,,,,,,,,,,, uint256 endDate) = auxion.listAuctions(1);
         vm.warp(endDate + 1);
         vm.prank(user4);
-        vm.expectRevert(
-            "Only the auction owner/highest bidder can end the auction."
-        );
+        vm.expectRevert("Only the auction owner/highest bidder can end the auction.");
         auxion.endAuction(1);
     }
+
     function test_RevertWhenAuctionStillGoing_EndAuction() public {
         vm.prank(user1);
         helper_OpenAuction();
@@ -565,20 +584,22 @@ contract AuxionEndAuctionTest is AuxionTest {
         vm.expectRevert("Auction is still ongoing.");
         auxion.endAuction(1);
     }
+
     function test_RevertWhenNobodyAuction_EndAuction() public {
         vm.prank(user1);
         helper_OpenAuction();
-        (, , , , , , , , , , , uint256 endDate) = auxion.listAuctions(1);
+        (,,,,,,,,,,, uint256 endDate) = auxion.listAuctions(1);
         vm.warp(endDate + 1);
         vm.prank(user1);
         vm.expectRevert("Nobody bid here");
         auxion.endAuction(1);
     }
+
     function test_RevertWhenAuctionEnded_EndAuction() public {
         vm.prank(user1);
         helper_OpenAuction();
         helper_EndAuction(user2, user3);
-        (, , , , , , , , , , , uint256 endDate) = auxion.listAuctions(1);
+        (,,,,,,,,,,, uint256 endDate) = auxion.listAuctions(1);
         vm.warp(endDate + 1);
         vm.prank(user2);
         auxion.endAuction(1);
@@ -588,6 +609,7 @@ contract AuxionEndAuctionTest is AuxionTest {
         auxion.endAuction(1);
     }
 }
+
 contract AuxionBuyerApprovalTest is AuxionTest {
     function test_BuyerApproval() public {
         vm.prank(user1);
@@ -596,10 +618,11 @@ contract AuxionBuyerApprovalTest is AuxionTest {
         helper_Approval(user2);
         vm.prank(user2);
         auxion.buyerApproval(1);
-        (, , bool buyerApproval, , , , , ) = (auxion.winnerAuction(1));
+        (,, bool buyerApproval,,,,,) = (auxion.winnerAuction(1));
 
         assertEq(buyerApproval, true);
     }
+
     function test_RevertWhenSomeoneAprrove_BuyerApproval() public {
         vm.prank(user1);
         helper_OpenAuction();
@@ -609,6 +632,7 @@ contract AuxionBuyerApprovalTest is AuxionTest {
         vm.expectRevert("Not authorized");
         auxion.buyerApproval(1);
     }
+
     function test_RevertWhenAuctionNotEnded_BuyerApproval() public {
         vm.prank(user1);
         helper_OpenAuction();
@@ -618,6 +642,7 @@ contract AuxionBuyerApprovalTest is AuxionTest {
         auxion.buyerApproval(1);
     }
 }
+
 contract AuxionSellerApprovalTest is AuxionTest {
     function test_Approval() public {
         vm.prank(user1);
@@ -626,12 +651,11 @@ contract AuxionSellerApprovalTest is AuxionTest {
         helper_Approval(user2);
         vm.prank(user1);
         auxion.approval(1, block.timestamp + 1);
-        (, , , bool sellerApproval, , , uint256 pendingShip, ) = (
-            auxion.winnerAuction(1)
-        );
+        (,,, bool sellerApproval,,, uint256 pendingShip,) = (auxion.winnerAuction(1));
         assertEq(sellerApproval, true);
         assertEq(pendingShip, block.timestamp + 1);
     }
+
     function test_EarlyApproval() public {
         vm.prank(user1);
         helper_OpenAuction();
@@ -639,12 +663,11 @@ contract AuxionSellerApprovalTest is AuxionTest {
         helper_Approval(user2);
         vm.prank(user1);
         auxion.approval(1, 1);
-        (, , , bool sellerApproval, , , uint256 pendingShip, ) = (
-            auxion.winnerAuction(1)
-        );
+        (,,, bool sellerApproval,,, uint256 pendingShip,) = (auxion.winnerAuction(1));
         assertEq(sellerApproval, true);
         assertEq(pendingShip, block.timestamp);
     }
+
     function test_MoreThreeMonthsApproval() public {
         uint256 threeMonths = 7889229;
         vm.prank(user1);
@@ -653,12 +676,11 @@ contract AuxionSellerApprovalTest is AuxionTest {
         helper_Approval(user2);
         vm.prank(user1);
         auxion.approval(1, block.timestamp + threeMonths + 30);
-        (, , , bool sellerApproval, , , uint256 pendingShip, ) = (
-            auxion.winnerAuction(1)
-        );
+        (,,, bool sellerApproval,,, uint256 pendingShip,) = (auxion.winnerAuction(1));
         assertEq(sellerApproval, true);
         assertEq(pendingShip, block.timestamp + threeMonths);
     }
+
     function test_RevertWhenSomeoneAprrove_Approval() public {
         vm.prank(user1);
         helper_OpenAuction();
@@ -668,6 +690,7 @@ contract AuxionSellerApprovalTest is AuxionTest {
         vm.expectRevert("Not authorized");
         auxion.approval(1, block.timestamp + 1);
     }
+
     function test_RevertWhenAuctionNotEnded_Approval() public {
         vm.prank(user1);
         helper_OpenAuction();
@@ -677,6 +700,7 @@ contract AuxionSellerApprovalTest is AuxionTest {
         auxion.approval(1, block.timestamp + 1);
     }
 }
+
 contract AuxionFinishAuctionTest is AuxionTest {
     function test_FinishAuction() public {
         vm.prank(user1);
@@ -690,14 +714,12 @@ contract AuxionFinishAuctionTest is AuxionTest {
         vm.prank(user2);
         auxion.buyerApproval(1);
 
-        (, , , , , uint256 tempFinalBid, , ) = (auxion.winnerAuction(1));
+        (,,,,, uint256 tempFinalBid,,) = (auxion.winnerAuction(1));
         vm.warp(block.timestamp + 2);
         vm.prank(user1);
         auxion.finishAuction(1);
 
-        (, , , , bool isFinished, uint256 finalBid, , ) = (
-            auxion.winnerAuction(1)
-        );
+        (,,,, bool isFinished, uint256 finalBid,,) = (auxion.winnerAuction(1));
         assertEq(isFinished, true);
         assertEq(finalBid, 0);
         assertEq(auxion.balances(user1), tempFinalBid);
@@ -765,9 +787,7 @@ contract AuxionRefundWhenSellerNoActionTest is AuxionTest {
         vm.prank(user2);
         auxion.refundWhenSellerNoAction(1);
 
-        (, , , , bool isFinished, uint256 finalBid, , ) = (
-            auxion.winnerAuction(1)
-        );
+        (,,,, bool isFinished, uint256 finalBid,,) = (auxion.winnerAuction(1));
 
         assertEq(isFinished, true);
         assertEq(finalBid, 0);
@@ -785,6 +805,7 @@ contract AuxionRefundWhenSellerNoActionTest is AuxionTest {
         vm.expectRevert("Not authorized");
         auxion.refundWhenSellerNoAction(1);
     }
+
     function test_RevertWhenNorReach1Week_RefundWhenSellerNoAction() public {
         vm.prank(user1);
         helper_OpenAuction();
@@ -807,7 +828,9 @@ contract AuxionRefundWhenSellerNoActionTest is AuxionTest {
         auxion.approval(1, block.timestamp + 1);
 
         vm.warp(block.timestamp + 6048000);
+
         vm.prank(user2);
+
         vm.expectRevert("Seller has been approve");
         auxion.refundWhenSellerNoAction(1);
     }

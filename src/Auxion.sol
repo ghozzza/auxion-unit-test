@@ -46,60 +46,48 @@ contract Auxion {
     constructor() {
         owner = msg.sender;
     }
+
     modifier auctionAvailable(uint256 _id) {
         require(listAuctions[_id].id != 0, "Auction not available");
         _;
     }
+
     modifier notAuctionOwner(uint256 _id) {
-        require(
-            listAuctions[_id].seller != msg.sender,
-            "You can't bid your auction"
-        );
+        require(listAuctions[_id].seller != msg.sender, "You can't bid your auction");
         _;
     }
+
     modifier timeSchedule(uint256 _id) {
-        require(
-            block.timestamp > listAuctions[_id].startDate,
-            "Auction not started"
-        );
-        require(
-            block.timestamp < listAuctions[_id].endDate &&
-                !listAuctions[_id].isEnded,
-            "Auction has already ended."
-        );
+        require(block.timestamp > listAuctions[_id].startDate, "Auction not started");
+        require(block.timestamp < listAuctions[_id].endDate && !listAuctions[_id].isEnded, "Auction has already ended.");
         _;
     }
+
     modifier bidLower(uint256 _id, uint256 _amount) {
-        require(
-            msg.value + _amount > listAuctions[_id].highestBid,
-            "There is already a higher or equal bid."
-        );
+        require(msg.value + _amount > listAuctions[_id].highestBid, "There is already a higher or equal bid.");
         _;
     }
+
     modifier bidGapHigh(uint256 _id, uint256 _amount) {
         require(
-            msg.value + _amount >
-                (listAuctions[_id].highestBid + listAuctions[_id].gapBid),
+            msg.value + _amount > (listAuctions[_id].highestBid + listAuctions[_id].gapBid),
             "You should bid at least have gap ..."
         );
         _;
     }
+
     modifier startBidding(uint256 _id, uint256 _amount) {
-        require(
-            msg.value + _amount >= listAuctions[_id].startBid,
-            "Bid at least higher than start bid"
-        );
+        require(msg.value + _amount >= listAuctions[_id].startBid, "Bid at least higher than start bid");
         _;
     }
+
     modifier penaltyProtect() {
         require(!penalty[msg.sender], "You got penalties");
         _;
     }
+
     modifier onlyOwner() {
-        require(
-            (owner == msg.sender) || (admin[msg.sender]),
-            "You're not Owner"
-        );
+        require((owner == msg.sender) || (admin[msg.sender]), "You're not Owner");
         _;
     }
 
@@ -112,9 +100,7 @@ contract Auxion {
         uint256 _startDate,
         uint256 _endDate
     ) external penaltyProtect {
-        uint256 tempStartDate = (
-            block.timestamp > _startDate ? block.timestamp : _startDate
-        );
+        uint256 tempStartDate = (block.timestamp > _startDate ? block.timestamp : _startDate);
         require(tempStartDate < _endDate);
         ++id;
         listAuctions[id] = AuctionData({
@@ -133,9 +119,8 @@ contract Auxion {
         });
     }
     // Bid using external balances
-    function bid(
-        uint256 _id
-    )
+
+    function bid(uint256 _id)
         external
         payable
         auctionAvailable(_id)
@@ -147,12 +132,8 @@ contract Auxion {
         penaltyProtect
     {
         //Refund the bid to balances, if there are higher bid use the function
-        if (
-            listAuctions[_id].highestBid < msg.value &&
-            listAuctions[_id].highestBid != 0
-        ) {
-            balances[listAuctions[_id].highestBidder] += listAuctions[_id]
-                .highestBid;
+        if (listAuctions[_id].highestBid < msg.value && listAuctions[_id].highestBid != 0) {
+            balances[listAuctions[_id].highestBidder] += listAuctions[_id].highestBid;
         }
 
         listAuctions[_id].highestBidder = msg.sender;
@@ -160,10 +141,8 @@ contract Auxion {
         emit highestBidIncreased(_id, msg.sender, msg.value);
     }
     // Bid using external balances and internal balances
-    function bidWithBalance(
-        uint256 _id,
-        uint256 _amount
-    )
+
+    function bidWithBalance(uint256 _id, uint256 _amount)
         external
         payable
         auctionAvailable(_id)
@@ -178,22 +157,19 @@ contract Auxion {
 
         balances[msg.sender] -= _amount;
 
-        if (
-            (listAuctions[_id].highestBid < (msg.value + _amount)) &&
-            (listAuctions[_id].highestBid != 0)
-        ) {
-            balances[listAuctions[_id].highestBidder] += listAuctions[_id]
-                .highestBid;
+        if ((listAuctions[_id].highestBid < (msg.value + _amount)) && (listAuctions[_id].highestBid != 0)) {
+            balances[listAuctions[_id].highestBidder] += listAuctions[_id].highestBid;
         }
         listAuctions[_id].highestBidder = msg.sender;
         listAuctions[_id].highestBid = msg.value + _amount;
         emit highestBidIncreased(_id, msg.sender, msg.value + _amount);
     }
     // Withdraw balance from contract with protected user from penalty
+
     function withdraw(uint256 _amount) external penaltyProtect {
         if (_amount > 0 && _amount <= balances[msg.sender]) {
             balances[msg.sender] -= _amount;
-            (bool sent, ) = (msg.sender).call{value: _amount}("");
+            (bool sent,) = (msg.sender).call{value: _amount}("");
             require(sent, "Failed to send Ether");
             // emit
             emit withdrawBalance(msg.sender, _amount);
@@ -202,24 +178,15 @@ contract Auxion {
         }
     }
     // End auction can happen when seller/buyer do this
+
     function endAuction(uint256 _id) external auctionAvailable(_id) {
         require(
-            msg.sender == listAuctions[_id].seller ||
-                msg.sender == listAuctions[_id].highestBidder,
+            msg.sender == listAuctions[_id].seller || msg.sender == listAuctions[_id].highestBidder,
             "Only the auction owner/highest bidder can end the auction."
         );
-        require(
-            block.timestamp > listAuctions[_id].endDate,
-            "Auction is still ongoing."
-        );
-        require(
-            listAuctions[_id].highestBidder != address(0),
-            "Nobody bid here"
-        );
-        require(
-            !listAuctions[_id].isEnded,
-            "Auction end has already been called."
-        );
+        require(block.timestamp > listAuctions[_id].endDate, "Auction is still ongoing.");
+        require(listAuctions[_id].highestBidder != address(0), "Nobody bid here");
+        require(!listAuctions[_id].isEnded, "Auction end has already been called.");
 
         listAuctions[_id].isEnded = true;
         uint256 highestBid = listAuctions[_id].highestBid;
@@ -239,13 +206,15 @@ contract Auxion {
         emit auctionEnded(_id, listAuctions[_id].highestBidder, highestBid);
     }
     // Buyer approve winnerAuction
-    function buyerApproval(uint _id) external {
+
+    function buyerApproval(uint256 _id) external {
         require(listAuctions[_id].isEnded, "Auction not ended");
         require(winnerAuction[_id].buyer == msg.sender, "Not authorized");
 
         winnerAuction[_id].buyerApproval = true;
     }
     // Seller approve winnerAuction
+
     function approval(uint256 _id, uint256 _pendingShip) external {
         require(listAuctions[_id].isEnded, "Auction not ended");
         require(winnerAuction[_id].seller == msg.sender, "Not authorized");
@@ -260,28 +229,18 @@ contract Auxion {
         winnerAuction[_id].sellerApproval = true;
 
         // Checking pending shipping less than nowadays, too keep secure the transaction
-        uint256 tempPendingShip = _pendingShip < block.timestamp
-            ? block.timestamp
-            : _pendingShip;
+        uint256 tempPendingShip = _pendingShip < block.timestamp ? block.timestamp : _pendingShip;
         // Checking pending shipping more than 3 months, too keep secure the transaction
-        uint256 finalPendingShip = tempPendingShip >
-            (block.timestamp + threeMonths)
-            ? (block.timestamp + threeMonths)
-            : tempPendingShip;
+        uint256 finalPendingShip =
+            tempPendingShip > (block.timestamp + threeMonths) ? (block.timestamp + threeMonths) : tempPendingShip;
         // Default, if seller approving more than
         winnerAuction[_id].pendingShip = finalPendingShip;
     }
     //Both of seller and buyer, approve, then between user or buyer can do this function to transfer auction's balance to seller
-    function finishAuction(uint _id) external {
-        require(
-            winnerAuction[_id].pendingShip < block.timestamp,
-            "Auction not finished shipping"
-        );
-        require(
-            winnerAuction[_id].sellerApproval &&
-                winnerAuction[_id].buyerApproval,
-            "Both of them must aprrove"
-        );
+
+    function finishAuction(uint256 _id) external {
+        require(winnerAuction[_id].pendingShip < block.timestamp, "Auction not finished shipping");
+        require(winnerAuction[_id].sellerApproval && winnerAuction[_id].buyerApproval, "Both of them must aprrove");
         require(!winnerAuction[_id].isFinished, "Auction finished");
 
         winnerAuction[_id].isFinished = true;
@@ -290,11 +249,12 @@ contract Auxion {
         balances[winnerAuction[id].seller] += sendBalance;
     }
     //if seller no verify the transaction, bid refund to user
-    function refundWhenSellerNoAction(uint _id) external {
+
+    function refundWhenSellerNoAction(uint256 _id) external {
         require(winnerAuction[_id].buyer == msg.sender, "Not authorized");
         require(
-            (block.timestamp > (winnerAuction[_id].approvalCreated + 604800)) &&
-                (winnerAuction[_id].approvalCreated != 0),
+            (block.timestamp > (winnerAuction[_id].approvalCreated + 604800))
+                && (winnerAuction[_id].approvalCreated != 0),
             "You can refund if theres no action more than a week"
         );
         require(!winnerAuction[_id].sellerApproval, "Seller has been approve");
@@ -304,28 +264,22 @@ contract Auxion {
         winnerAuction[_id].finalBid = 0;
         balances[winnerAuction[id].buyer] += sendBalance;
 
-        emit refundToBuyer(
-            winnerAuction[_id].buyer,
-            winnerAuction[_id].seller,
-            sendBalance
-        );
+        emit refundToBuyer(winnerAuction[_id].buyer, winnerAuction[_id].seller, sendBalance);
     }
 
     // Owner & Admin area
-    function ownerForceApprove(
-        uint _id,
-        address _user,
-        bool _approve
-    ) external onlyOwner {
+    function ownerForceApprove(uint256 _id, address _user, bool _approve) external onlyOwner {
         if (winnerAuction[_id].buyer == _user) {
             winnerAuction[_id].buyerApproval = _approve;
         } else if (winnerAuction[_id].seller == _user) {
             winnerAuction[_id].sellerApproval = _approve;
         }
     }
+
     function ownerGivePenalty(address _user) external onlyOwner {
         penalty[_user] = true;
     }
+
     function ownerRemovePenalty(address _user) external onlyOwner {
         penalty[_user] = false;
     }
