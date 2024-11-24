@@ -213,6 +213,10 @@ contract Auxion {
             "Auction is still ongoing."
         );
         require(
+            listAuctions[_id].highestBidder != address(0),
+            "Nobody bid here"
+        );
+        require(
             !listAuctions[_id].isEnded,
             "Auction end has already been called."
         );

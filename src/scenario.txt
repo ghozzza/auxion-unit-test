@@ -56,4 +56,75 @@ requirements:
 # Success
 1. enough balance
 2. full balance
+
 # error
+1. Insufficient balance (Balance = 100, withdraw =200)
+2. Zero amount
+3. User got penalty
+
+minus
+
+################################
+endAuction()
+
+# Success
+1. buyer end auction also emit
+2. seller end auction also emit
+
+# error
+1. auction not available
+2. someone end the auction
+3. Auction still going
+4. no bidder
+5. Auction has ended
+
+minus
+1. auction no bidder v
+
+################################
+buyerApproval()
+
+# Success
+1. Buyer Approve
+
+# Error
+1. Someone accessing this function
+2. Auction not ended
+
+# minus
+1. event emit
+
+################################
+approval()
+
+# Success
+1. Approve
+2. ApproveTime < block.timestamp
+3. ApproveTime + moreThreeMonths
+
+# Error
+1. Someone accessing this function
+2. Auction not ended
+
+# minus
+1. event emit
+
+################################
+finishAuction()
+
+# Success
+1. Finish Auction
+# Error
+1. Auction not Finish
+2. Both No Approve
+3. has finished
+
+# Minus event Emit
+################################
+
+
+
+################################
+minus
+give scenario when buyer approve seller must be first approve
+bid when buyer want to add his bidding
