@@ -134,7 +134,7 @@ contract AuxionOpenAuctionTest is AuxionTest {
          *
          */
         //Soon give theFeedback
-        vm.expectRevert();
+        vm.expectRevert("Make sure your date is valid");
         /**
          *
          */

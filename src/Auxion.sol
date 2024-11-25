@@ -36,7 +36,7 @@ contract Auxion {
     mapping(address => bool) public penalty;
     mapping(address => bool) public admin;
 
-    address owner;
+    address immutable owner;
 
     event highestBidIncreased(uint256 id, address bidder, uint256 amount);
     event auctionEnded(uint256 id, address highestBidder, uint256 highestBid);
@@ -101,7 +101,7 @@ contract Auxion {
         uint256 _endDate
     ) external penaltyProtect {
         uint256 tempStartDate = (block.timestamp > _startDate ? block.timestamp : _startDate);
-        require(tempStartDate < _endDate);
+        require(tempStartDate < _endDate, "Make sure your date is valid");
         ++id;
         listAuctions[id] = AuctionData({
             id: id,
