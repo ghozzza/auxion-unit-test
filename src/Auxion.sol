@@ -2,7 +2,7 @@
 pragma solidity ^0.8.27;
 
 contract Auxion {
-    uint256 id;
+    uint256 public id;
 
     struct AuctionData {
         uint256 id;
