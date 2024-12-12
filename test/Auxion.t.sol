@@ -216,16 +216,16 @@ contract AuxionBidTest is AuxionTest {
         auxion.bid{value: bidAmount}(1);
     }
 
-    function test_RevertWhenAuctionNotStarted_Bid() public {
-        vm.prank(user1);
-        helper_OpenAuction();
+    // function test_RevertWhenAuctionNotStarted_Bid() public {
+    //     vm.prank(user1);
+    //     helper_OpenAuction();
 
-        vm.warp(block.timestamp);
-        vm.deal(user2, bidAmount);
-        vm.prank(user2);
-        vm.expectRevert("Auction not started");
-        auxion.bid{value: bidAmount}(1);
-    }
+    //     vm.warp(block.timestamp);
+    //     vm.deal(user2, bidAmount);
+    //     vm.prank(user2);
+    //     vm.expectRevert("Auction not started");
+    //     auxion.bid{value: bidAmount}(1);
+    // }
 
     function test_RevertWhenAuctionFinished_Bid() public {
         vm.prank(user1);
@@ -362,16 +362,16 @@ contract AuxionBidWithBalanceTest is AuxionTest {
         auxion.bidWithBalance{value: bidAmount}(1, bidAmount);
     }
 
-    function test_RevertWhenAuctionNotStarted_BidWithBalance() public {
-        vm.prank(user1);
-        helper_OpenAuction();
+    // function test_RevertWhenAuctionNotStarted_BidWithBalance() public {
+    //     vm.prank(user1);
+    //     helper_OpenAuction();
 
-        vm.warp(block.timestamp);
-        vm.deal(user2, bidAmount);
-        vm.prank(user2);
-        vm.expectRevert("Auction not started");
-        auxion.bidWithBalance{value: bidAmount}(1, bidAmount);
-    }
+    //     vm.warp(block.timestamp);
+    //     vm.deal(user2, bidAmount);
+    //     vm.prank(user2);
+    //     vm.expectRevert("Auction not started");
+    //     auxion.bidWithBalance{value: bidAmount}(1, bidAmount);
+    // }
 
     function test_RevertWhenAuctionFinished_BidWithBalance() public {
         vm.prank(user1);

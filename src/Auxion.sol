@@ -58,7 +58,7 @@ contract Auxion {
     }
 
     modifier timeSchedule(uint256 _id) {
-        require(block.timestamp > listAuctions[_id].startDate, "Auction not started");
+        // require(block.timestamp > listAuctions[_id].startDate, "Auction not started");
         require(block.timestamp < listAuctions[_id].endDate && !listAuctions[_id].isEnded, "Auction has already ended.");
         _;
     }
