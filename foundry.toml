@@ -7,4 +7,4 @@ viaIR = true
 # See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options
 
 [rpc_endpoints]
-lisk_sepolia = "${LISK_SEPOLIA_RPC_URL}"
+op_sepolia = "${OP_SEPOLIA_RPC_URL}"

@@ -8,7 +8,7 @@ contract AuxionScript is Script {
     Auxion auxion;
 
     function setUp() public {
-        vm.createSelectFork(vm.rpcUrl("lisk_sepolia"));
+        vm.createSelectFork(vm.rpcUrl("op_sepolia"));
     }
 
     function run() public {
