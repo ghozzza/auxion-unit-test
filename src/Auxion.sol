@@ -327,7 +327,7 @@ contract Auxion {
         winnerAuction[_id].isFinished = true;
         uint256 sendBalance = winnerAuction[_id].finalBid;
         winnerAuction[_id].finalBid = 0;
-        balances[winnerAuction[id].seller] += sendBalance;
+        balances[winnerAuction[_id].seller] += sendBalance;
     }
     //if seller no verify the transaction, bid refund to user
 
@@ -343,7 +343,7 @@ contract Auxion {
         winnerAuction[_id].isFinished = true;
         uint256 sendBalance = winnerAuction[_id].finalBid;
         winnerAuction[_id].finalBid = 0;
-        balances[winnerAuction[id].buyer] += sendBalance;
+        balances[winnerAuction[_id].buyer] += sendBalance;
 
         emit refundToBuyer(
             winnerAuction[_id].buyer,
